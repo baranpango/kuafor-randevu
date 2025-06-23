@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ahmet Tekeli Erkek Kuaförü Randevu</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 15px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    button { margin-top: 20px; background: #25D366; color: white; border: none; padding: 12px; width: 100%; font-size: 16px; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #128c43; }
+    .error { color: red; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Ahmet Tekeli Erkek Kuaförü</h2>
+    <form id="randevuForm">
+      <label for="isim">İsim</label>
+      <input type="text" id="isim" name="isim" required />
+
+      <label for="soyisim">Soyisim</label>
+      <input type="text" id="soyisim" name="soyisim" required />
+
+      <label for="telefon">Telefon</label>
+      <input type="tel" id="telefon" name="telefon" pattern="[0-9]{10,15}" placeholder="5xx xxx xx xx" required />
+
+      <label for="tarih">Tarih</label>
+      <input type="date" id="tarih" name="tarih" required />
+
+      <label for="saat">Saat</label>
+      <select id="saat" name="saat" required>
+        <option value="">Seçiniz</option>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="13:00">13:00</option>
+        <option value="14:00">14:00</option>
+        <option value="15:00">15:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+      </select>
+
+      <label for="hizmet">Hizmet</label>
+      <select id="hizmet" name="hizmet" required>
+        <option value="">Seçiniz</option>
+        <option value="Saç Kesimi">Saç Kesimi</option>
+        <option value="Tıraş">Tıraş</option>
+        <option value="Sakal Bakımı">Sakal Bakımı</option>
+        <option value="Saç Boyama">Saç Boyama</option>
+      </select>
+
+      <button type="submit">Randevu Gönder</button>
+      <div id="error" class="error"></div>
+    </form>
+  </div>
+
+  <script>
+    // Basit saat çakışması kontrolü - bu sadece sayfa açıkken geçerli!
+    const randevuForm = document.getElementById('randevuForm');
+    const errorDiv = document.getElementById('error');
+
+    // Randevuları tutacak basit dizi (sayfa yenilendiğinde sıfırlanır)
+    const alinanSaatler = [];
+
+    randevuForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      errorDiv.textContent = '';
+
+      const isim = document.getElementById('isim').value.trim();
+      const soyisim = document.getElementById('soyisim').value.trim();
+      const telefon = document.getElementById('telefon').value.trim();
+      const tarih = document.getElementById('tarih').value;
+      const saat = document.getElementById('saat').value;
+      const hizmet = document.getElementById('hizmet').value;
+
+      if (!isim || !soyisim || !telefon || !tarih || !saat || !hizmet) {
+        errorDiv.textContent = 'Lütfen tüm alanları doldurun.';
+        return;
+      }
+
+      const tarihSaatKey = tarih + ' ' + saat;
+      if (alinanSaatler.includes(tarihSaatKey)) {
+        errorDiv.textContent = 'Bu saat için zaten bir randevu alınmış. Lütfen başka bir saat seçin.';
+        return;
+      }
+
+      // Randevuyu kaydet
+      alinanSaatler.push(tarihSaatKey);
+
+      // WhatsApp mesajı oluştur
+      const mesaj = `Merhaba, Ahmet Tekeli Erkek Kuaförü için yeni bir randevu talebi:\n` +
+                    `İsim: ${isim}\n` +
+                    `Soyisim: ${soyisim}\n` +
+                    `Telefon: ${telefon}\n` +
+                    `Tarih: ${tarih}\n` +
+                    `Saat: ${saat}\n` +
+                    `Hizmet: ${hizmet}`;
+
+      // WhatsApp linki oluştur (Türkiye +90 kodu ile)
+      const whatsappNumara = '905xxxxxxxxx'; // Buraya Ahmet Bey’in numarasını yaz
+      const whatsappUrl = `https://wa.me/${whatsappNumara}?text=` + encodeURIComponent(mesaj);
+
+      // Yeni sekmede aç
+      window.open(whatsappUrl, '_blank');
+
+      // Formu temizle
+      randevuForm.reset();
+    });
+  </script>
+</body>
+</html>
